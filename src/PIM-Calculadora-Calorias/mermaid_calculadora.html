@@ -1,0 +1,126 @@
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Diagramas a partir de texto</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({ 
+            startOnLoad: true 
+        });
+    </script>
+</head>
+
+<body>
+
+    <div class="row">
+        <div class="col-md-10 m-auto my-5">
+            <div class="card">
+                <div class="card-header">
+                    <strong>Calculadora de calorías a ingerir (PIM)</strong>
+                </div>
+                <div class="card-body">
+                    <p>
+                       
+                    </p>
+                
+                    <div class="mermaid">
+                        
+                        classDiagram
+
+                        direction R
+                        
+                        class Persona {
+                            +nombres: String
+                            +fechaNacimiento: Date
+                            +peso: Double
+                            +altura: Double
+                            +sexo: String
+                            +calcularEdad(): Number
+                            +calcularIMC(): Double
+                        }
+                        
+                        class NivelActividad {
+                            +nombre: String
+                            +descripcion: String
+                            +rangoInicioDia: Number
+                            +rangoFinalDia: Number
+                            +getRangoDias(): String
+                        }
+                        
+                        class Ingesta {
+                            +unidades: Number
+                            +caloria: Double
+                            +denominacionCaloria: String
+                            +fecha: Date
+                        }
+                        
+                        class Alimento {
+                            +tipo: String
+                            +nombre: String
+                            +calorias: Double
+                            +proteinas: Double
+                            +carbohidratos: Double
+                            +grasas: Double
+                            +fibra: Double
+                            +unidadMedida: String
+                        }
+                        
+                        class Nutriente {
+                            +tipo_nutriente: String
+                            +nombre: String
+                            +valor: Double
+                        }
+                        
+                        class TipoNutriente {
+                             &lt;&lt;enumeration&gt;&gt;
+                            VITAMINA
+                            MINERALES
+                        }
+                        
+                        class ComidaDia {
+                            +nombreTipoComida: String
+                            +hora: Time
+                        }
+                        
+                        class NombreTipoComida {
+                             &lt;&lt;enumeration&gt;&gt;
+                            DESAYUNO
+                            ALMUERZO
+                            MERIENDA
+                        }
+                        
+                        class InformacionMedica {
+                            +densidadCalorica: String
+                            +indiceGlucemico: String
+                        }
+                        
+                        class Enfermedades {
+                            +nombre: String
+                            +estaConsumiendoMedicacion: Boolean
+                            +observacion: String
+                        }
+                        
+                        Persona "1" *-- "1" InformacionMedica
+                        Persona "1" *-- "0..*" Enfermedades
+                        Persona "1" *-- "0..*" Ingesta
+                        Alimento "1" *-- "0..*" Ingesta
+                        ComidaDia "1" *-- "0..*" Ingesta
+                        Nutriente .. TipoNutriente
+                        Persona "1" *-- "1..*" NivelActividad
+                        Alimento "1" *-- "0..*" Nutriente
+                        ComidaDia .. NombreTipoComida
+                        
+                
+                    </div>
+                </div>
+            </div> 
+        </div>
+    </div>   
+   
+
+</body>
+
+</html>
