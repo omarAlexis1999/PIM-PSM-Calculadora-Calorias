@@ -5,9 +5,8 @@
 import java.util.*;
 import java.sql.Date;
 
-// line 27 "model.ump"
-// line 70 "model.ump"
-// line 110 "model.ump"
+// line 39 "model.ump"
+// line 114 "model.ump"
 public class Alimento
 {
 
@@ -26,14 +25,14 @@ public class Alimento
   private String unidadMedida;
 
   //Alimento Associations
+  private Nutriente nutriente;
   private List<Ingesta> ingestas;
-  private List<Nutriente> nutrientes;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public Alimento(String aTipo, String aNombre, double aCalorias, double aProteinas, double aCarbohidratos, double aGrasas, double aFibra, String aUnidadMedida)
+  public Alimento(String aTipo, String aNombre, double aCalorias, double aProteinas, double aCarbohidratos, double aGrasas, double aFibra, String aUnidadMedida, Nutriente aNutriente)
   {
     tipo = aTipo;
     nombre = aNombre;
@@ -43,8 +42,12 @@ public class Alimento
     grasas = aGrasas;
     fibra = aFibra;
     unidadMedida = aUnidadMedida;
+    boolean didAddNutriente = setNutriente(aNutriente);
+    if (!didAddNutriente)
+    {
+      throw new RuntimeException("Unable to create alimento due to nutriente. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
+    }
     ingestas = new ArrayList<Ingesta>();
-    nutrientes = new ArrayList<Nutriente>();
   }
 
   //------------------------
@@ -154,6 +157,11 @@ public class Alimento
   {
     return unidadMedida;
   }
+  /* Code from template association_GetOne */
+  public Nutriente getNutriente()
+  {
+    return nutriente;
+  }
   /* Code from template association_GetMany */
   public Ingesta getIngesta(int index)
   {
@@ -184,35 +192,24 @@ public class Alimento
     int index = ingestas.indexOf(aIngesta);
     return index;
   }
-  /* Code from template association_GetMany */
-  public Nutriente getNutriente(int index)
+  /* Code from template association_SetOneToMany */
+  public boolean setNutriente(Nutriente aNutriente)
   {
-    Nutriente aNutriente = nutrientes.get(index);
-    return aNutriente;
-  }
+    boolean wasSet = false;
+    if (aNutriente == null)
+    {
+      return wasSet;
+    }
 
-  public List<Nutriente> getNutrientes()
-  {
-    List<Nutriente> newNutrientes = Collections.unmodifiableList(nutrientes);
-    return newNutrientes;
-  }
-
-  public int numberOfNutrientes()
-  {
-    int number = nutrientes.size();
-    return number;
-  }
-
-  public boolean hasNutrientes()
-  {
-    boolean has = nutrientes.size() > 0;
-    return has;
-  }
-
-  public int indexOfNutriente(Nutriente aNutriente)
-  {
-    int index = nutrientes.indexOf(aNutriente);
-    return index;
+    Nutriente existingNutriente = nutriente;
+    nutriente = aNutriente;
+    if (existingNutriente != null && !existingNutriente.equals(aNutriente))
+    {
+      existingNutriente.removeAlimento(this);
+    }
+    nutriente.addAlimento(this);
+    wasSet = true;
+    return wasSet;
   }
   /* Code from template association_MinimumNumberOfMethod */
   public static int minimumNumberOfIngestas()
@@ -220,9 +217,9 @@ public class Alimento
     return 0;
   }
   /* Code from template association_AddManyToOne */
-  public Ingesta addIngesta(int aUnidades, double aCaloria, String aDenominacionCaloria, Date aFecha, Persona aPersona, ComidaDia aComidaDia)
+  public Ingesta addIngesta(int aUnidades, double aCaloria, String aDenominacionCaloria, Date aFecha, Persona aPersona)
   {
-    return new Ingesta(aUnidades, aCaloria, aDenominacionCaloria, aFecha, aPersona, this, aComidaDia);
+    return new Ingesta(aUnidades, aCaloria, aDenominacionCaloria, aFecha, this, aPersona);
   }
 
   public boolean addIngesta(Ingesta aIngesta)
@@ -286,90 +283,19 @@ public class Alimento
     }
     return wasAdded;
   }
-  /* Code from template association_MinimumNumberOfMethod */
-  public static int minimumNumberOfNutrientes()
-  {
-    return 0;
-  }
-  /* Code from template association_AddManyToOne */
-  public Nutriente addNutriente(String aTipo_nutriente, String aNombre, double aValor)
-  {
-    return new Nutriente(aTipo_nutriente, aNombre, aValor, this);
-  }
-
-  public boolean addNutriente(Nutriente aNutriente)
-  {
-    boolean wasAdded = false;
-    if (nutrientes.contains(aNutriente)) { return false; }
-    Alimento existingAlimento = aNutriente.getAlimento();
-    boolean isNewAlimento = existingAlimento != null && !this.equals(existingAlimento);
-    if (isNewAlimento)
-    {
-      aNutriente.setAlimento(this);
-    }
-    else
-    {
-      nutrientes.add(aNutriente);
-    }
-    wasAdded = true;
-    return wasAdded;
-  }
-
-  public boolean removeNutriente(Nutriente aNutriente)
-  {
-    boolean wasRemoved = false;
-    //Unable to remove aNutriente, as it must always have a alimento
-    if (!this.equals(aNutriente.getAlimento()))
-    {
-      nutrientes.remove(aNutriente);
-      wasRemoved = true;
-    }
-    return wasRemoved;
-  }
-  /* Code from template association_AddIndexControlFunctions */
-  public boolean addNutrienteAt(Nutriente aNutriente, int index)
-  {  
-    boolean wasAdded = false;
-    if(addNutriente(aNutriente))
-    {
-      if(index < 0 ) { index = 0; }
-      if(index > numberOfNutrientes()) { index = numberOfNutrientes() - 1; }
-      nutrientes.remove(aNutriente);
-      nutrientes.add(index, aNutriente);
-      wasAdded = true;
-    }
-    return wasAdded;
-  }
-
-  public boolean addOrMoveNutrienteAt(Nutriente aNutriente, int index)
-  {
-    boolean wasAdded = false;
-    if(nutrientes.contains(aNutriente))
-    {
-      if(index < 0 ) { index = 0; }
-      if(index > numberOfNutrientes()) { index = numberOfNutrientes() - 1; }
-      nutrientes.remove(aNutriente);
-      nutrientes.add(index, aNutriente);
-      wasAdded = true;
-    } 
-    else 
-    {
-      wasAdded = addNutrienteAt(aNutriente, index);
-    }
-    return wasAdded;
-  }
 
   public void delete()
   {
+    Nutriente placeholderNutriente = nutriente;
+    this.nutriente = null;
+    if(placeholderNutriente != null)
+    {
+      placeholderNutriente.removeAlimento(this);
+    }
     for(int i=ingestas.size(); i > 0; i--)
     {
       Ingesta aIngesta = ingestas.get(i - 1);
       aIngesta.delete();
-    }
-    for(int i=nutrientes.size(); i > 0; i--)
-    {
-      Nutriente aNutriente = nutrientes.get(i - 1);
-      aNutriente.delete();
     }
   }
 
@@ -384,6 +310,7 @@ public class Alimento
             "carbohidratos" + ":" + getCarbohidratos()+ "," +
             "grasas" + ":" + getGrasas()+ "," +
             "fibra" + ":" + getFibra()+ "," +
-            "unidadMedida" + ":" + getUnidadMedida()+ "]";
+            "unidadMedida" + ":" + getUnidadMedida()+ "]" + System.getProperties().getProperty("line.separator") +
+            "  " + "nutriente = "+(getNutriente()!=null?Integer.toHexString(System.identityHashCode(getNutriente())):"null");
   }
 }

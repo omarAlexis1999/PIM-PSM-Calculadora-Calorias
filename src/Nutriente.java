@@ -2,10 +2,10 @@
 /*This code was generated using the UMPLE 1.33.0.6934.a386b0a58 modeling language!*/
 
 
+import java.util.*;
 
-// line 38 "model.ump"
-// line 79 "model.ump"
-// line 117 "model.ump"
+// line 52 "model.ump"
+// line 120 "model.ump"
 public class Nutriente
 {
 
@@ -19,22 +19,18 @@ public class Nutriente
   private double valor;
 
   //Nutriente Associations
-  private Alimento alimento;
+  private List<Alimento> alimentos;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public Nutriente(String aTipo_nutriente, String aNombre, double aValor, Alimento aAlimento)
+  public Nutriente(String aTipo_nutriente, String aNombre, double aValor)
   {
     tipo_nutriente = aTipo_nutriente;
     nombre = aNombre;
     valor = aValor;
-    boolean didAddAlimento = setAlimento(aAlimento);
-    if (!didAddAlimento)
-    {
-      throw new RuntimeException("Unable to create nutriente due to alimento. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
-    }
+    alimentos = new ArrayList<Alimento>();
   }
 
   //------------------------
@@ -79,38 +75,115 @@ public class Nutriente
   {
     return valor;
   }
-  /* Code from template association_GetOne */
-  public Alimento getAlimento()
+  /* Code from template association_GetMany */
+  public Alimento getAlimento(int index)
   {
-    return alimento;
+    Alimento aAlimento = alimentos.get(index);
+    return aAlimento;
   }
-  /* Code from template association_SetOneToMany */
-  public boolean setAlimento(Alimento aAlimento)
-  {
-    boolean wasSet = false;
-    if (aAlimento == null)
-    {
-      return wasSet;
-    }
 
-    Alimento existingAlimento = alimento;
-    alimento = aAlimento;
-    if (existingAlimento != null && !existingAlimento.equals(aAlimento))
+  public List<Alimento> getAlimentos()
+  {
+    List<Alimento> newAlimentos = Collections.unmodifiableList(alimentos);
+    return newAlimentos;
+  }
+
+  public int numberOfAlimentos()
+  {
+    int number = alimentos.size();
+    return number;
+  }
+
+  public boolean hasAlimentos()
+  {
+    boolean has = alimentos.size() > 0;
+    return has;
+  }
+
+  public int indexOfAlimento(Alimento aAlimento)
+  {
+    int index = alimentos.indexOf(aAlimento);
+    return index;
+  }
+  /* Code from template association_MinimumNumberOfMethod */
+  public static int minimumNumberOfAlimentos()
+  {
+    return 0;
+  }
+  /* Code from template association_AddManyToOne */
+  public Alimento addAlimento(String aTipo, String aNombre, double aCalorias, double aProteinas, double aCarbohidratos, double aGrasas, double aFibra, String aUnidadMedida)
+  {
+    return new Alimento(aTipo, aNombre, aCalorias, aProteinas, aCarbohidratos, aGrasas, aFibra, aUnidadMedida, this);
+  }
+
+  public boolean addAlimento(Alimento aAlimento)
+  {
+    boolean wasAdded = false;
+    if (alimentos.contains(aAlimento)) { return false; }
+    Nutriente existingNutriente = aAlimento.getNutriente();
+    boolean isNewNutriente = existingNutriente != null && !this.equals(existingNutriente);
+    if (isNewNutriente)
     {
-      existingAlimento.removeNutriente(this);
+      aAlimento.setNutriente(this);
     }
-    alimento.addNutriente(this);
-    wasSet = true;
-    return wasSet;
+    else
+    {
+      alimentos.add(aAlimento);
+    }
+    wasAdded = true;
+    return wasAdded;
+  }
+
+  public boolean removeAlimento(Alimento aAlimento)
+  {
+    boolean wasRemoved = false;
+    //Unable to remove aAlimento, as it must always have a nutriente
+    if (!this.equals(aAlimento.getNutriente()))
+    {
+      alimentos.remove(aAlimento);
+      wasRemoved = true;
+    }
+    return wasRemoved;
+  }
+  /* Code from template association_AddIndexControlFunctions */
+  public boolean addAlimentoAt(Alimento aAlimento, int index)
+  {  
+    boolean wasAdded = false;
+    if(addAlimento(aAlimento))
+    {
+      if(index < 0 ) { index = 0; }
+      if(index > numberOfAlimentos()) { index = numberOfAlimentos() - 1; }
+      alimentos.remove(aAlimento);
+      alimentos.add(index, aAlimento);
+      wasAdded = true;
+    }
+    return wasAdded;
+  }
+
+  public boolean addOrMoveAlimentoAt(Alimento aAlimento, int index)
+  {
+    boolean wasAdded = false;
+    if(alimentos.contains(aAlimento))
+    {
+      if(index < 0 ) { index = 0; }
+      if(index > numberOfAlimentos()) { index = numberOfAlimentos() - 1; }
+      alimentos.remove(aAlimento);
+      alimentos.add(index, aAlimento);
+      wasAdded = true;
+    } 
+    else 
+    {
+      wasAdded = addAlimentoAt(aAlimento, index);
+    }
+    return wasAdded;
   }
 
   public void delete()
   {
-    Alimento placeholderAlimento = alimento;
-    this.alimento = null;
-    if(placeholderAlimento != null)
+    for(int i=alimentos.size(); i > 0; i--)
     {
-      placeholderAlimento.removeNutriente(this);
+      Alimento aAlimento = alimentos.get(i - 1);
+      aAlimento.delete();
     }
   }
 
@@ -120,9 +193,6 @@ public class Nutriente
     return super.toString() + "["+
             "tipo_nutriente" + ":" + getTipo_nutriente()+ "," +
             "nombre" + ":" + getNombre()+ "," +
-            "valor" + ":" + getValor()+ "]" + System.getProperties().getProperty("line.separator") +
-            "  " + "alimento = "+(getAlimento()!=null?Integer.toHexString(System.identityHashCode(getAlimento())):"null");
+            "valor" + ":" + getValor()+ "]";
   }
-
-  
 }

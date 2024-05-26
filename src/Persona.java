@@ -5,12 +5,8 @@
 import java.sql.Date;
 import java.util.*;
 
-/**
- * Relaciones
- */
 // line 2 "model.ump"
-// line 63 "model.ump"
-// line 91 "model.ump"
+// line 93 "model.ump"
 public class Persona
 {
 
@@ -306,9 +302,9 @@ public class Persona
     return 0;
   }
   /* Code from template association_AddManyToOne */
-  public Ingesta addIngesta(int aUnidades, double aCaloria, String aDenominacionCaloria, Date aFecha, Alimento aAlimento, ComidaDia aComidaDia)
+  public Ingesta addIngesta(int aUnidades, double aCaloria, String aDenominacionCaloria, Date aFecha, Alimento aAlimento)
   {
-    return new Ingesta(aUnidades, aCaloria, aDenominacionCaloria, aFecha, this, aAlimento, aComidaDia);
+    return new Ingesta(aUnidades, aCaloria, aDenominacionCaloria, aFecha, aAlimento, this);
   }
 
   public boolean addIngesta(Ingesta aIngesta)
@@ -372,15 +368,22 @@ public class Persona
     }
     return wasAdded;
   }
+  /* Code from template association_IsNumberOfValidMethod */
+  public boolean isNumberOfNivelActividadsValid()
+  {
+    boolean isValid = numberOfNivelActividads() >= minimumNumberOfNivelActividads();
+    return isValid;
+  }
   /* Code from template association_MinimumNumberOfMethod */
   public static int minimumNumberOfNivelActividads()
   {
-    return 0;
+    return 1;
   }
-  /* Code from template association_AddManyToOne */
-  public NivelActividad addNivelActividad(String aNombre, String aDescripcion, int aRangoInicioDia, int aRangoFinalDia)
+  /* Code from template association_AddMandatoryManyToOne */
+  public NivelActividad addNivelActividad(String aNombre, String aDescripcion, Date aRangoInicioDia, Date aRangoFinalDia)
   {
-    return new NivelActividad(aNombre, aDescripcion, aRangoInicioDia, aRangoFinalDia, this);
+    NivelActividad aNewNivelActividad = new NivelActividad(aNombre, aDescripcion, aRangoInicioDia, aRangoFinalDia, this);
+    return aNewNivelActividad;
   }
 
   public boolean addNivelActividad(NivelActividad aNivelActividad)
@@ -389,6 +392,11 @@ public class Persona
     if (nivelActividads.contains(aNivelActividad)) { return false; }
     Persona existingPersona = aNivelActividad.getPersona();
     boolean isNewPersona = existingPersona != null && !this.equals(existingPersona);
+
+    if (isNewPersona && existingPersona.numberOfNivelActividads() <= minimumNumberOfNivelActividads())
+    {
+      return wasAdded;
+    }
     if (isNewPersona)
     {
       aNivelActividad.setPersona(this);
@@ -405,11 +413,19 @@ public class Persona
   {
     boolean wasRemoved = false;
     //Unable to remove aNivelActividad, as it must always have a persona
-    if (!this.equals(aNivelActividad.getPersona()))
+    if (this.equals(aNivelActividad.getPersona()))
     {
-      nivelActividads.remove(aNivelActividad);
-      wasRemoved = true;
+      return wasRemoved;
     }
+
+    //persona already at minimum (1)
+    if (numberOfNivelActividads() <= minimumNumberOfNivelActividads())
+    {
+      return wasRemoved;
+    }
+
+    nivelActividads.remove(aNivelActividad);
+    wasRemoved = true;
     return wasRemoved;
   }
   /* Code from template association_AddIndexControlFunctions */
@@ -470,6 +486,16 @@ public class Persona
     }
   }
 
+  // line 10 "model.ump"
+  public int calcularEdad(){
+    return 0;
+  }
+
+  // line 12 "model.ump"
+  public Double calcularIMC(){
+    return 0.0;
+  }
+
 
   public String toString()
   {
@@ -480,15 +506,5 @@ public class Persona
             "sexo" + ":" + getSexo()+ "]" + System.getProperties().getProperty("line.separator") +
             "  " + "fechaNacimiento" + "=" + (getFechaNacimiento() != null ? !getFechaNacimiento().equals(this)  ? getFechaNacimiento().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
             "  " + "informacionMedica = "+(getInformacionMedica()!=null?Integer.toHexString(System.identityHashCode(getInformacionMedica())):"null");
-  }  
-  //------------------------
-  // DEVELOPER CODE - PROVIDED AS-IS
-  //------------------------
-  
-  // line 8 "model.ump"
-  int calcularEdad(){return 0;} ;
-// line 9 "model.ump"
-  Double calcularIMC(){return 0.0;};
-
-  
+  }
 }

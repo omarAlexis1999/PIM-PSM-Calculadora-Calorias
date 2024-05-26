@@ -3,8 +3,8 @@
 
 
 
-// line 56 "model.ump"
-// line 133 "model.ump"
+// line 83 "model.ump"
+// line 136 "model.ump"
 public class Enfermedades
 {
 

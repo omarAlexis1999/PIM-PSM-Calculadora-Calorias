@@ -3,13 +3,9 @@
 
 
 import java.sql.Time;
-import java.util.*;
-import java.sql.Date;
 
-// line 44 "model.ump"
-// line 75 "model.ump"
-// line 83 "model.ump"
-// line 122 "model.ump"
+// line 65 "model.ump"
+// line 125 "model.ump"
 public class ComidaDia
 {
 
@@ -22,17 +18,21 @@ public class ComidaDia
   private Time hora;
 
   //ComidaDia Associations
-  private List<Ingesta> ingestas;
+  private Ingesta ingesta;
 
   //------------------------
   // CONSTRUCTOR
   //------------------------
 
-  public ComidaDia(String aNombreTipoComida, Time aHora)
+  public ComidaDia(String aNombreTipoComida, Time aHora, Ingesta aIngesta)
   {
     nombreTipoComida = aNombreTipoComida;
     hora = aHora;
-    ingestas = new ArrayList<Ingesta>();
+    boolean didAddIngesta = setIngesta(aIngesta);
+    if (!didAddIngesta)
+    {
+      throw new RuntimeException("Unable to create comidaDia due to ingesta. See http://manual.umple.org?RE002ViolationofAssociationMultiplicity.html");
+    }
   }
 
   //------------------------
@@ -64,115 +64,38 @@ public class ComidaDia
   {
     return hora;
   }
-  /* Code from template association_GetMany */
-  public Ingesta getIngesta(int index)
+  /* Code from template association_GetOne */
+  public Ingesta getIngesta()
   {
-    Ingesta aIngesta = ingestas.get(index);
-    return aIngesta;
+    return ingesta;
   }
-
-  public List<Ingesta> getIngestas()
+  /* Code from template association_SetOneToMany */
+  public boolean setIngesta(Ingesta aIngesta)
   {
-    List<Ingesta> newIngestas = Collections.unmodifiableList(ingestas);
-    return newIngestas;
-  }
-
-  public int numberOfIngestas()
-  {
-    int number = ingestas.size();
-    return number;
-  }
-
-  public boolean hasIngestas()
-  {
-    boolean has = ingestas.size() > 0;
-    return has;
-  }
-
-  public int indexOfIngesta(Ingesta aIngesta)
-  {
-    int index = ingestas.indexOf(aIngesta);
-    return index;
-  }
-  /* Code from template association_MinimumNumberOfMethod */
-  public static int minimumNumberOfIngestas()
-  {
-    return 0;
-  }
-  /* Code from template association_AddManyToOne */
-  public Ingesta addIngesta(int aUnidades, double aCaloria, String aDenominacionCaloria, Date aFecha, Persona aPersona, Alimento aAlimento)
-  {
-    return new Ingesta(aUnidades, aCaloria, aDenominacionCaloria, aFecha, aPersona, aAlimento, this);
-  }
-
-  public boolean addIngesta(Ingesta aIngesta)
-  {
-    boolean wasAdded = false;
-    if (ingestas.contains(aIngesta)) { return false; }
-    ComidaDia existingComidaDia = aIngesta.getComidaDia();
-    boolean isNewComidaDia = existingComidaDia != null && !this.equals(existingComidaDia);
-    if (isNewComidaDia)
+    boolean wasSet = false;
+    if (aIngesta == null)
     {
-      aIngesta.setComidaDia(this);
+      return wasSet;
     }
-    else
-    {
-      ingestas.add(aIngesta);
-    }
-    wasAdded = true;
-    return wasAdded;
-  }
 
-  public boolean removeIngesta(Ingesta aIngesta)
-  {
-    boolean wasRemoved = false;
-    //Unable to remove aIngesta, as it must always have a comidaDia
-    if (!this.equals(aIngesta.getComidaDia()))
+    Ingesta existingIngesta = ingesta;
+    ingesta = aIngesta;
+    if (existingIngesta != null && !existingIngesta.equals(aIngesta))
     {
-      ingestas.remove(aIngesta);
-      wasRemoved = true;
+      existingIngesta.removeComidaDia(this);
     }
-    return wasRemoved;
-  }
-  /* Code from template association_AddIndexControlFunctions */
-  public boolean addIngestaAt(Ingesta aIngesta, int index)
-  {  
-    boolean wasAdded = false;
-    if(addIngesta(aIngesta))
-    {
-      if(index < 0 ) { index = 0; }
-      if(index > numberOfIngestas()) { index = numberOfIngestas() - 1; }
-      ingestas.remove(aIngesta);
-      ingestas.add(index, aIngesta);
-      wasAdded = true;
-    }
-    return wasAdded;
-  }
-
-  public boolean addOrMoveIngestaAt(Ingesta aIngesta, int index)
-  {
-    boolean wasAdded = false;
-    if(ingestas.contains(aIngesta))
-    {
-      if(index < 0 ) { index = 0; }
-      if(index > numberOfIngestas()) { index = numberOfIngestas() - 1; }
-      ingestas.remove(aIngesta);
-      ingestas.add(index, aIngesta);
-      wasAdded = true;
-    } 
-    else 
-    {
-      wasAdded = addIngestaAt(aIngesta, index);
-    }
-    return wasAdded;
+    ingesta.addComidaDia(this);
+    wasSet = true;
+    return wasSet;
   }
 
   public void delete()
   {
-    for(int i=ingestas.size(); i > 0; i--)
+    Ingesta placeholderIngesta = ingesta;
+    this.ingesta = null;
+    if(placeholderIngesta != null)
     {
-      Ingesta aIngesta = ingestas.get(i - 1);
-      aIngesta.delete();
+      placeholderIngesta.removeComidaDia(this);
     }
   }
 
@@ -181,11 +104,7 @@ public class ComidaDia
   {
     return super.toString() + "["+
             "nombreTipoComida" + ":" + getNombreTipoComida()+ "]" + System.getProperties().getProperty("line.separator") +
-            "  " + "hora" + "=" + (getHora() != null ? !getHora().equals(this)  ? getHora().toString().replaceAll("  ","    ") : "this" : "null");
-  }  
-  //------------------------
-  // DEVELOPER CODE - PROVIDED AS-IS
-  //------------------------
-
-  
+            "  " + "hora" + "=" + (getHora() != null ? !getHora().equals(this)  ? getHora().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
+            "  " + "ingesta = "+(getIngesta()!=null?Integer.toHexString(System.identityHashCode(getIngesta())):"null");
+  }
 }

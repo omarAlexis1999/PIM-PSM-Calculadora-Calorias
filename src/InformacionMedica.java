@@ -4,8 +4,8 @@
 
 import java.sql.Date;
 
-// line 51 "model.ump"
-// line 128 "model.ump"
+// line 78 "model.ump"
+// line 131 "model.ump"
 public class InformacionMedica
 {
 

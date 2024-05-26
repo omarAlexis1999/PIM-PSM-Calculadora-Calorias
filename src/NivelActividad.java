@@ -2,9 +2,10 @@
 /*This code was generated using the UMPLE 1.33.0.6934.a386b0a58 modeling language!*/
 
 
+import java.sql.Date;
 
-// line 12 "model.ump"
-// line 100 "model.ump"
+// line 20 "model.ump"
+// line 102 "model.ump"
 public class NivelActividad
 {
 
@@ -15,8 +16,8 @@ public class NivelActividad
   //NivelActividad Attributes
   private String nombre;
   private String descripcion;
-  private int rangoInicioDia;
-  private int rangoFinalDia;
+  private Date rangoInicioDia;
+  private Date rangoFinalDia;
 
   //NivelActividad Associations
   private Persona persona;
@@ -25,7 +26,7 @@ public class NivelActividad
   // CONSTRUCTOR
   //------------------------
 
-  public NivelActividad(String aNombre, String aDescripcion, int aRangoInicioDia, int aRangoFinalDia, Persona aPersona)
+  public NivelActividad(String aNombre, String aDescripcion, Date aRangoInicioDia, Date aRangoFinalDia, Persona aPersona)
   {
     nombre = aNombre;
     descripcion = aDescripcion;
@@ -58,7 +59,7 @@ public class NivelActividad
     return wasSet;
   }
 
-  public boolean setRangoInicioDia(int aRangoInicioDia)
+  public boolean setRangoInicioDia(Date aRangoInicioDia)
   {
     boolean wasSet = false;
     rangoInicioDia = aRangoInicioDia;
@@ -66,7 +67,7 @@ public class NivelActividad
     return wasSet;
   }
 
-  public boolean setRangoFinalDia(int aRangoFinalDia)
+  public boolean setRangoFinalDia(Date aRangoFinalDia)
   {
     boolean wasSet = false;
     rangoFinalDia = aRangoFinalDia;
@@ -84,12 +85,12 @@ public class NivelActividad
     return descripcion;
   }
 
-  public int getRangoInicioDia()
+  public Date getRangoInicioDia()
   {
     return rangoInicioDia;
   }
 
-  public int getRangoFinalDia()
+  public Date getRangoFinalDia()
   {
     return rangoFinalDia;
   }
@@ -98,11 +99,17 @@ public class NivelActividad
   {
     return persona;
   }
-  /* Code from template association_SetOneToMany */
+  /* Code from template association_SetOneToMandatoryMany */
   public boolean setPersona(Persona aPersona)
   {
     boolean wasSet = false;
+    //Must provide persona to nivelActividad
     if (aPersona == null)
+    {
+      return wasSet;
+    }
+
+    if (persona != null && persona.numberOfNivelActividads() <= Persona.minimumNumberOfNivelActividads())
     {
       return wasSet;
     }
@@ -111,7 +118,12 @@ public class NivelActividad
     persona = aPersona;
     if (existingPersona != null && !existingPersona.equals(aPersona))
     {
-      existingPersona.removeNivelActividad(this);
+      boolean didRemove = existingPersona.removeNivelActividad(this);
+      if (!didRemove)
+      {
+        persona = existingPersona;
+        return wasSet;
+      }
     }
     persona.addNivelActividad(this);
     wasSet = true;
@@ -128,23 +140,19 @@ public class NivelActividad
     }
   }
 
+  // line 27 "model.ump"
+  public String getRangoDias(){
+    return "";
+  }
+
 
   public String toString()
   {
     return super.toString() + "["+
             "nombre" + ":" + getNombre()+ "," +
-            "descripcion" + ":" + getDescripcion()+ "," +
-            "rangoInicioDia" + ":" + getRangoInicioDia()+ "," +
-            "rangoFinalDia" + ":" + getRangoFinalDia()+ "]" + System.getProperties().getProperty("line.separator") +
+            "descripcion" + ":" + getDescripcion()+ "]" + System.getProperties().getProperty("line.separator") +
+            "  " + "rangoInicioDia" + "=" + (getRangoInicioDia() != null ? !getRangoInicioDia().equals(this)  ? getRangoInicioDia().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
+            "  " + "rangoFinalDia" + "=" + (getRangoFinalDia() != null ? !getRangoFinalDia().equals(this)  ? getRangoFinalDia().toString().replaceAll("  ","    ") : "this" : "null") + System.getProperties().getProperty("line.separator") +
             "  " + "persona = "+(getPersona()!=null?Integer.toHexString(System.identityHashCode(getPersona())):"null");
-  }  
-  //------------------------
-  // DEVELOPER CODE - PROVIDED AS-IS
-  //------------------------
-  
-  // line 17 "model.ump"
-  String getRangoDias(){return "";}
-  ;
-
-  
+  }
 }
